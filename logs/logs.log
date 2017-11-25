@@ -1,0 +1,19 @@
+2017/11/25 20:42:55 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    547.111µs|   match|[44m GET     [0m /     r:/
+2017/11/25 20:42:56 [D] [server.go:2619] |      127.0.0.1|[43m 404 [0m|    139.364µs| nomatch|[44m GET     [0m /favicon.ico
+2017/11/25 20:43:41 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    530.453µs|   match|[44m GET     [0m /     r:/
+2017/11/25 20:45:20 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    389.685µs|   match|[44m GET     [0m /     r:/
+2017/11/25 20:50:12 [C] [asm_amd64.s:2337] ListenAndServe:  accept tcp [::]:8080: use of closed network connection 1434
+2017/11/25 20:58:21 [C] [asm_amd64.s:2337] ListenAndServe:  accept tcp [::]:8080: use of closed network connection 1469
+2017/11/25 20:59:49 [D] [server.go:2619] |      127.0.0.1|[43m 404 [0m|    213.558µs| nomatch|[44m GET     [0m /v1/swagger/
+2017/11/25 21:00:14 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|   2.167525ms|   match|[44m GET     [0m /v1/user/swagger/   r:/v1/user/:id
+2017/11/25 21:24:37 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|   2.214863ms|   match|[44m GET     [0m /v1/user/swagger/   r:/v1/user/:id
+2017/11/25 21:24:43 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    264.458µs|   match|[44m GET     [0m /v1/user/swagger/   r:/v1/user/:id
+2017/11/25 21:24:57 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    305.379µs|   match|[44m GET     [0m /v1/user/swagger   r:/v1/user/:id
+2017/11/25 21:25:05 [D] [server.go:2619] |      127.0.0.1|[43m 404 [0m|     87.472µs| nomatch|[44m GET     [0m /v1/swagger
+2017/11/25 21:27:37 [D] [server.go:2619] |      127.0.0.1|[43m 404 [0m|    222.462µs| nomatch|[44m GET     [0m /v1/swagger
+2017/11/25 21:27:47 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    373.272µs|   match|[44m GET     [0m /v1/airad/swagger   r:/v1/airad/:id
+2017/11/25 21:28:48 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    587.289µs|   match|[44m GET     [0m /v1/user/swagger   r:/v1/user/:id
+2017/11/25 21:28:54 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    269.936µs|   match|[44m GET     [0m /v1/user/swagger   r:/v1/user/:id
+2017/11/25 21:31:35 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|   5.260301ms|   match|[44m GET     [0m /v1/user/swagger   r:/v1/user/:id
+2017/11/25 21:31:37 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    334.201µs|   match|[44m GET     [0m /v1/user/swagger   r:/v1/user/:id
+2017/11/25 21:31:40 [D] [server.go:2619] |      127.0.0.1|[42m 200 [0m|    296.136µs|   match|[44m GET     [0m /v1/user/swagger   r:/v1/user/:id

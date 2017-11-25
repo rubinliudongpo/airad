@@ -1,0 +1,336 @@
+swagger: "2.0"
+info:
+  title: beego Test API
+  description: beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: astaxie@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1
+paths:
+  /airad/:
+    get:
+      tags:
+      - airad
+      description: get AirAd
+      operationId: AirAdController.GetAll
+      parameters:
+      - in: query
+        name: query
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
+        name: fields
+        description: Fields returned. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: sortby
+        description: Sorted-by fields. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: order
+        description: Order corresponding to each sortby field, if single value, apply
+          to all sortby fields. e.g. desc,asc ...
+        type: string
+      - in: query
+        name: limit
+        description: Limit the size of result set. Must be an integer
+        type: string
+      - in: query
+        name: offset
+        description: Start position of result set. Must be an integer
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.AirAd'
+        "403":
+          description: ""
+    post:
+      tags:
+      - airad
+      description: create AirAd
+      operationId: AirAdController.Create
+      parameters:
+      - in: body
+        name: body
+        description: body for AirAd content
+        required: true
+        schema:
+          $ref: '#/definitions/models.AirAd'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.AirAd'
+        "403":
+          description: body is empty
+  /airad/{id}:
+    get:
+      tags:
+      - airad
+      description: get AirAd by id
+      operationId: AirAdController.GetOne
+      parameters:
+      - in: path
+        name: id
+        description: The key for staticblock
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.AirAd'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - airad
+      description: update the AirAd
+      operationId: AirAdController.Put
+      parameters:
+      - in: path
+        name: id
+        description: The id you want to update
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for AirAd content
+        required: true
+        schema:
+          $ref: '#/definitions/models.AirAd'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.AirAd'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - airad
+      description: delete the AirAd
+      operationId: AirAdController.Delete
+      parameters:
+      - in: path
+        name: id
+        description: The id you want to delete
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
+  /user/:
+    get:
+      tags:
+      - user
+      description: get all Users
+      operationId: UserController.GetAll
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+    post:
+      tags:
+      - user
+      description: create users
+      operationId: UserController.CreateUser
+      parameters:
+      - in: body
+        name: body
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      responses:
+        "200":
+          description: '{int} models.User.Id'
+        "403":
+          description: body is empty
+  /user/{id}:
+    get:
+      tags:
+      - user
+      description: get User by id
+      operationId: UserController.GetOne
+      parameters:
+      - in: path
+        name: id
+        description: The key for staticblock
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.AirAd'
+        "403":
+          description: :id is empty
+  /user/{uid}:
+    put:
+      tags:
+      - user
+      description: update the user
+      operationId: UserController.Update
+      parameters:
+      - in: path
+        name: uid
+        description: The uid you want to update
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.User'
+        "403":
+          description: :uid is not int
+    delete:
+      tags:
+      - user
+      description: delete the user
+      operationId: UserController.Delete
+      parameters:
+      - in: path
+        name: uid
+        description: The uid you want to delete
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: uid is empty
+  /user/login:
+    get:
+      tags:
+      - user
+      description: Logs user into the system
+      operationId: UserController.Login
+      parameters:
+      - in: query
+        name: username
+        description: The username for login
+        required: true
+        type: string
+      - in: query
+        name: password
+        description: The password for login
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} login success'
+        "403":
+          description: user not exist
+  /user/logout:
+    get:
+      tags:
+      - user
+      description: Logs out current logged in user session
+      operationId: UserController.logout
+      responses:
+        "200":
+          description: '{string} logout success'
+definitions:
+  models.AirAd:
+    title: AirAd
+    type: object
+    properties:
+      aqi_quality:
+        type: string
+      co:
+        type: string
+      created_at:
+        type: integer
+        format: int64
+      humidity:
+        type: string
+      id:
+        type: integer
+        format: int64
+      latitude:
+        type: string
+      longitude:
+        type: string
+      nh3:
+        type: string
+      o3:
+        type: string
+      pm10:
+        type: string
+      pm25:
+        type: string
+      so2:
+        type: string
+      suggest:
+        type: string
+      temperature:
+        type: string
+  models.Object:
+    title: Object
+    type: object
+    properties:
+      ObjectId:
+        type: string
+      PlayerName:
+        type: string
+      Score:
+        type: integer
+        format: int64
+  models.User:
+    title: User
+    type: object
+    properties:
+      address:
+        type: string
+      age:
+        type: integer
+        format: int64
+      created_at:
+        type: integer
+        format: int64
+      email:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+        format: int64
+      last_login:
+        type: integer
+        format: int64
+      password:
+        type: string
+      status:
+        type: integer
+        format: int64
+      token:
+        type: string
+      updated_at:
+        type: integer
+        format: int64
+      username:
+        type: string
+tags:
+- name: user
+  description: |
+    Operations about Users
+- name: airad
+  description: |
+    AirAdController operations for AirAd
