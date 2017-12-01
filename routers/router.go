@@ -8,7 +8,7 @@
 package routers
 
 import (
-	"zzhj-airad-app-api/controllers"
+	"airad-app-api/controllers"
 	"github.com/astaxie/beego"
 )
 
