@@ -5,13 +5,25 @@ type ErrorController struct {
 	BaseController
 }
 
-// RetError return error information in JSON.
-func (c *ErrorController) RetError(e *ControllerReturn) {
-	c.Data["json"] = e
+
+func (c *ErrorController) Error404() {
+	c.Data["json"] = Response{
+		ErrorCode: 404,
+		ErrorMessage:  "Not Found",
+	}
 	c.ServeJSON()
 }
-
-// Error404 redefine 404 error information.
-func (c *ErrorController) Error404() {
-	c.RetError(err404)
+func (c *ErrorController) Error401() {
+	c.Data["json"] = Response{
+		ErrorCode: 401,
+		ErrorMessage:  "Permission denied",
+	}
+	c.ServeJSON()
+}
+func (c *ErrorController) Error403() {
+	c.Data["json"] = Response{
+		ErrorCode: 403,
+		ErrorMessage:  "Forbidden",
+	}
+	c.ServeJSON()
 }

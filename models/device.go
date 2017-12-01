@@ -1,58 +1,64 @@
 package models
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
-	"strings"
 	"github.com/astaxie/beego/orm"
+	"strings"
+	"reflect"
+	"fmt"
+	"errors"
 )
 
-type AirAd struct {
+type Device struct {
 	Id int `json:"id, omitempty" orm:"column(id);pk;unique;auto_increment"`
+	DeviceName string `json:"device_name" orm:"column(device_name);unique;size(32)"`
+	Address string `json:"address" orm:"column(address);size(50)"`
+	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled
 	CreatedAt int `json:"created_at, omitempty" orm:"column(create_at);size(11)"`
-	Nh3 string `json:"nh3, omitempty" orm:"column(nh3);size(4)"`
-	Co string `json:"co, omitempty" orm:"column(co);size(4)"`
-	O3 string `json:"o3, omitempty" orm:"column(o3);size(4)"`
-	Pm25 string `json:"pm25, omitempty" orm:"column(pm25);size(4)"`
-	Pm10 string `json:"pm10, omitempty" orm:"column(pm10);size(4)"`
-	So2 string `json:"so2, omitempty" orm:"column(so2);size(4)"`
-	Temperature string `json:"temperature, omitempty" orm:"column(temperature);size(4)"`
-	Humidity string `json:"humidity, omitempty" orm:"column(humidity);size(4)"`
-	AqiQuality string `json:"aqi_quality, omitempty" orm:"column(aqi_quality);size(4)"`
-	Device *Device `json:"device" orm:"rel(fk)"`
-	Suggest string `json:"suggest, omitempty" orm:"column(suggest);size(4)"`
+	UpdatedAt int `json:"updated_at, omitempty" orm:"column(updated_at);size(11)"`
+	Latitude string `json:"latitude, omitempty" orm:"column(latitude);size(12)"`
+	Longitude string `json:"longitude, omitempty" orm:"column(longitude);size(12)"`
+	User *User `json:"user" orm:"rel(fk)"`
 }
 
 func init() {
 	orm.RegisterModel(new(AirAd))
 }
 
-// AddAirAd insert a new AirAd into database and returns
+// AddDevice insert a new Device into database and returns
 // last inserted Id on success.
-func AddAirAd(m *AirAd) (id int64, err error) {
+func AddDevice(m *Device) (id int64, err error) {
 	o := orm.NewOrm()
 	id, err = o.Insert(m)
 	return
 }
 
-// GetAirAdById retrieves AirAd by Id. Returns error if
+// GetDeviceById retrieves Device by Id. Returns error if
 // Id doesn't exist
-func GetAirAdById(id int) (v *AirAd, err error) {
+func GetDeviceById(id int) (v *Device, err error) {
 	o := orm.NewOrm()
-	v = &AirAd{Id: id}
-	if err = o.QueryTable(new(AirAd)).Filter("Id", id).RelatedSel().One(v); err == nil {
+	v = &Device{Id: id}
+	if err = o.QueryTable(new(Device)).Filter("Id", id).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err
 }
 
-// GetAllAirAds retrieves all AirAd matches certain condition. Returns empty list if
+// GetDeviceByUser retrieves Device by User. Returns error if
+// Id doesn't exist
+func GetDevicesByUser(user *User, limit int) []*Device {
+	o := orm.NewOrm()
+	var device Device
+	var devices []*Device
+	o.QueryTable(device).Filter("User", user).OrderBy("-CreatedAt").Limit(limit).All(&devices)
+	return devices
+}
+
+// GetAllDevices retrieves all AirAd matches certain condition. Returns empty list if
 // no records exist
-func GetAllAirAds(query map[string]string, fields []string, sortby []string, order []string,
+func GetAllDevices(query map[string]string, fields []string, sortby []string, order []string,
 	offset int, limit int) (ml []interface{}, err error) {
 	o := orm.NewOrm()
-	qs := o.QueryTable(new(AirAd))
+	qs := o.QueryTable(new(Device))
 	// query k=v
 	for k, v := range query {
 		// rewrite dot-notation to Object__Attribute
@@ -121,11 +127,11 @@ func GetAllAirAds(query map[string]string, fields []string, sortby []string, ord
 	return nil, err
 }
 
-// UpdateAirAd updates AirAd by Id and returns error if
+// UpdateDevice updates Device by Id and returns error if
 // the record to be updated doesn't exist
-func UpdateAirAdById(m *AirAd) (err error) {
+func UpdateDeviceById(m *Device) (err error) {
 	o := orm.NewOrm()
-	v := AirAd{Id: m.Id}
+	v := Device{Id: m.Id}
 	// ascertain id exists in the database
 	if err = o.Read(&v); err == nil {
 		var num int64
@@ -136,15 +142,15 @@ func UpdateAirAdById(m *AirAd) (err error) {
 	return
 }
 
-// DeleteAirAd deletes AirAd by Id and returns error if
+// DeleteDevice deletes Device by Id and returns error if
 // the record to be deleted doesn't exist
-func DeleteAirAd(id int) (err error) {
+func DeleteDevice(id int) (err error) {
 	o := orm.NewOrm()
-	v := AirAd{Id: id}
+	v := Device{Id: id}
 	// ascertain id exists in the database
 	if err = o.Read(&v); err == nil {
 		var num int64
-		if num, err = o.Delete(&AirAd{Id: id}); err == nil {
+		if num, err = o.Delete(&Device{Id: id}); err == nil {
 			fmt.Println("Number of records deleted in database:", num)
 		}
 	}

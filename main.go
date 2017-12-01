@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "airad-app-api/routers"
-	"airad-app-api/controllers"
+	_ "zzhj-airad-app-api/routers"
+	"zzhj-airad-app-api/controllers"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
@@ -15,8 +15,12 @@ import (
 )
 
 func init() {
-	orm.RegisterDataBase("default", "mysql", "gouser:gopassword@tcp(127.0.0.1:3306)/airad")
-	//orm.RunSyncdb("default", false, true)
+	orm.RegisterDataBase("default", "mysql", "gouser:gopassword@tcp(127.0.0.1:3306)/zzhj_airad?charset=utf8mb4")
+	err := orm.RunSyncdb("default", false, true)
+	if err != nil {
+		fmt.Println(err)
+	}
+	orm.RunCommand()
 }
 
 func handleSignals(c chan os.Signal) {

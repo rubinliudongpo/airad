@@ -2,30 +2,47 @@ package models
 
 import (
 	"errors"
-	//"time"
 	"github.com/astaxie/beego/orm"
 	"reflect"
 	"strings"
 	"fmt"
+	"zzhj-airad-app-api/utils"
+
+	"time"
 )
+
+func (u *User) TableName() string {
+	return TableName("user")
+}
 
 func init() {
 	orm.RegisterModel(new(User))
 }
 
 type User struct {
-	Id int `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Token string `json:"token"`
-	Gender string `json:"gender"`  // 0:Male, 1: Female, 2: undefined
-	Age int `json:"age"`
-	Address string `json:"address"`
-	Email string `json:"email"`
-	LastLogin int `json:"last_login"`
-	Status int `json:"status"`// 0: enabled, 1:disabled
-	CreateAt int `json:"created_at"`
-	UpdateAt int `json:"updated_at"`
+	Id int `json:"id" orm:"column(id);pk;unique;auto_increment"`
+	Username string `json:"username" orm:"column(username);unique;size(32)"`
+	Password string `json:"password" orm:"column(password);size(128)"`
+	Salt string `json:"salt" orm:"column(salt);size(128)"`
+	Token string `json:"token" orm:"column(token);size(32)"`
+	Gender int `json:"gender" orm:"column(gender);size(1)"`  // 0:Male, 1: Female, 2: undefined
+	Age int `json:"age" orm:"column(age):size(3)"`
+	Address string `json:"address" orm:"column(address);size(50)"`
+	Email string `json:"email" orm:"column(email);size(50)"`
+	LastLogin int64 `json:"last_login" orm:"column(last_login);size(11)"`
+	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled
+	CreateAt int64 `json:"created_at" orm:"column(create_at);size(11)"`
+	UpdateAt int64 `json:"updated_at" rm:"column(update_at);size(11)"`
+}
+
+func Users() orm.QuerySeter {
+	return orm.NewOrm().QueryTable(new(User))
+}
+
+// 检测用户是否存在
+func CheckUserName(username string) bool {
+	exist := Users().Filter("Username", username).Exist()
+	return exist
 }
 
 func GetUserById(id int) (v *User, err error) {
@@ -136,8 +153,35 @@ func GetUserByUsername(username string) (err error, user *User) {
 
 func AddUser(m *User) (id int64, err error) {
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
+	salt, err := utils.GenerateSalt()
+	if err != nil {
+		return 0, err
+	}
+
+	passwordHash, err := utils.GeneratePassHash(m.Password, salt)
+	if err != nil {
+		return 0, err
+	}
+	CreatedAt := time.Now().UTC().Unix()
+	UpdatedAt := CreatedAt
+	LastLogin := CreatedAt
+	Status := 0
+
+	user := User{
+		Username:m.Username,
+		Password: passwordHash,
+		Salt:salt,
+		Gender:m.Gender,
+		Age:m.Age,
+		Address:m.Address,
+		Email:m.Email,
+		LastLogin:LastLogin,
+		Status:Status,
+		CreateAt:CreatedAt,
+		UpdateAt:UpdatedAt,
+	}
+	id, err = o.Insert(user)
+	return id, nil
 }
 
 func UpdateUser(user *User) {
@@ -175,3 +219,32 @@ func DeleteUser(id int) (err error) {
 	}
 	return
 }
+
+
+//func HashPassword(password string) (string, error) {
+//	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+//	return string(bytes), err
+//}
+//
+//func CheckPasswordHash(password, hash string) bool {
+//	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+//	return err == nil
+//}
+
+
+
+//func generateToken() (tokenString string, err error) {
+//	/* Create the token */
+//	token := jwt.New(jwt.SigningMethodHS256)
+//
+//	/* Create a map to store our claims
+//	claims := token.Claims.(jwt.MapClaims)
+//
+//	/* Set token claims */
+//	claims["admin"] = true
+//	claims["name"] = "Ado Kukic"
+//	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+//
+//	/* Sign the token with our secret */
+//	tokenString, _ := token.SignedString(mySigningKey)
+//}

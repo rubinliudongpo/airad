@@ -25,14 +25,6 @@ const (
 	ErrSystem       = "操作系统错误"
 )
 
-// ControllerError is controller error info struct.
-type ControllerReturn struct {
-	Status int `json:"status"`
-	Code int `json:"code"`
-	Message string `json:"message"`
-	Data interface{} `json:"data"`
-}
-
 // UserData definition.
 type UserSuccessLoginData struct {
 	AccessToken string `json:"access_token"`
@@ -41,30 +33,31 @@ type UserSuccessLoginData struct {
 
 // Predefined controller error/success values.
 var (
-	successReturn = &ControllerReturn{0, 0, "ok", "ok"}
-	err404 = &ControllerReturn{404, 404, "找不到网页", "找不到网页"}
-	errInputData = &ControllerReturn{400, 10001, "数据输入错误", "客户端参数错误"}
-	errDatabase = &ControllerReturn{500, 10002, "服务器错误", "数据库操作错误"}
-	errDupUser = &ControllerReturn{400, 10003, "用户信息已存在", "数据库记录重复"}
-	errNoUser = &ControllerReturn{400, 10004, "用户信息不存在", "数据库记录不存在"}
-	errPass = &ControllerReturn{400, 10005, "用户信息不存在或密码不正确", "密码不正确"}
-	errNoUserOrPass = &ControllerReturn{400, 10006, "用户不存在或密码不正确", "数据库记录不存在或密码不正确"}
-	errNoUserChange = &ControllerReturn{400, 10007, "用户不存在或数据未改变", "数据库记录不存在或数据未改变"}
-	errInvalidUser = &ControllerReturn{400, 10008, "用户信息不正确", "Session信息不正确"}
-	errOpenFile = &ControllerReturn{500, 10009, "服务器错误", "打开文件出错"}
-	errWriteFile = &ControllerReturn{500, 10010, "服务器错误", "写文件出错"}
-	errSystem = &ControllerReturn{500, 10011, "服务器错误", "操作系统错误"}
-	errExpired = &ControllerReturn{400, 10012, "登录已过期", "验证token过期"}
-	errPermission = &ControllerReturn{400, 10013, "没有权限", "没有操作权限"}
+	successReturn = &Response{200, 0, "ok", "ok"}
+	err404 = &Response{404, 404, "找不到网页", "找不到网页"}
+	errInputData = &Response{400, 10001, "数据输入错误", "客户端参数错误"}
+	errDatabase = &Response{500, 10002, "服务器错误", "数据库操作错误"}
+	errUserToken = &Response{500, 10002, "服务器错误", "令牌操作错误"}
+	errDupUser = &Response{400, 10003, "用户信息已存在", "数据库记录重复"}
+	errNoUser = &Response{400, 10004, "用户信息不存在", "数据库记录不存在"}
+	errPass = &Response{400, 10005, "用户信息不存在或密码不正确", "密码不正确"}
+	errNoUserOrPass = &Response{400, 10006, "用户不存在或密码不正确", "数据库记录不存在或密码不正确"}
+	errNoUserChange = &Response{400, 10007, "用户不存在或数据未改变", "数据库记录不存在或数据未改变"}
+	errInvalidUser = &Response{400, 10008, "用户信息不正确", "Session信息不正确"}
+	errOpenFile = &Response{500, 10009, "服务器错误", "打开文件出错"}
+	errWriteFile = &Response{500, 10010, "服务器错误", "写文件出错"}
+	errSystem = &Response{500, 10011, "服务器错误", "操作系统错误"}
+	errExpired = &Response{400, 10012, "登录已过期", "验证token过期"}
+	errPermission = &Response{400, 10013, "没有权限", "没有操作权限"}
 )
 
 // BaseController definition.
-type BaseController struct {
-	beego.Controller
-}
+//type BaseController struct {
+//	beego.Controller
+//}
 
 // RetError return error information in JSON.
-func (base *BaseController) RetError(e *ControllerReturn) {
+func (base *BaseController) RetError(e *Response) {
 	if mode := beego.AppConfig.String("runmode"); mode == "prod" {
 		e.Data = ""
 	}
@@ -73,7 +66,6 @@ func (base *BaseController) RetError(e *ControllerReturn) {
 	base.Ctx.ResponseWriter.WriteHeader(e.Status)
 	base.Data["json"] = e
 	base.ServeJSON()
-
 	base.StopRun()
 }
 

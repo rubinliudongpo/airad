@@ -1,12 +1,16 @@
 package controllers
 
 import (
-	"airad-app-api/models"
+	"zzhj-airad-app-api/models"
+	"zzhj-airad-app-api/utils"
 	"encoding/json"
 	"errors"
 	"github.com/astaxie/beego"
 	"strings"
 	"strconv"
+	//"github.com/astaxie/beego/validation"
+	"time"
+	"fmt"
 )
 
 // Operations about Users
@@ -32,15 +36,22 @@ func (c *UserController) URLMapping() {
 func (c *UserController) Post() {
 	var v models.User
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if errorMessage := utils.CheckNewUserPost(v.Username, v.Password,
+			v.Age, v.Gender, v.Address, v.Email); errorMessage != "ok"{
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,errorMessage, ""}
+			c.ServeJSON()
+			return
+		}
 		if _, err := models.AddUser(&v); err == nil {
 			c.Ctx.Output.SetStatus(201)
 			var returnData = &UserSuccessLoginData{v.Token, v.Username}
-			c.Data["json"] = &ControllerReturn{0, 0, "ok", returnData}
+			c.Data["json"] = &Response{0, 0, "ok", returnData}
 		} else {
-			c.Data["json"] = &ControllerReturn{1, 1, "failed", err.Error()}
+			c.Data["json"] = &Response{1, 1, "failed", err.Error()}
 		}
 	} else {
-		c.Data["json"] = &ControllerReturn{1, 1, "failed", err.Error()}
+		c.Data["json"] = &Response{1, 1, "failed", err.Error()}
 	}
 	c.ServeJSON()
 }
@@ -56,6 +67,18 @@ func (c *UserController) GetAll() {
 	var query = make(map[string]string)
 	var limit int = 10
 	var offset int
+
+	token := c.Ctx.Input.Header("token")
+	//id := c.Ctx.Input.Header("id")
+	et := utils.EasyToken{}
+	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	valido, err := et.ValidateToken(token)
+	if !valido {
+		c.Ctx.ResponseWriter.WriteHeader(401)
+		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
+		c.ServeJSON()
+		return
+	}
 
 	// fields: col1,col2,entity.col3
 	if v := c.GetString("fields"); v != "" {
@@ -103,12 +126,25 @@ func (c *UserController) GetAll() {
 // GetOne ...
 // @Title GetOne
 // @Description get User by id
-// @Param	id		path 	string	true "The key for staticblock"
+// @Param	id		path 	string	true "The key for static block"
 // @Success 200 {object} models.AirAd
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *UserController) GetOne() {
+	token := c.Ctx.Input.Header("token")
+	//idStr := c.Ctx.Input.Param("id")
 	idStr := c.Ctx.Input.Param(":id")
+	//token := c.Ctx.Input.Param(":token")
+	et := utils.EasyToken{}
+	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	valido, err := et.ValidateToken(token)
+	if !valido {
+		c.Ctx.ResponseWriter.WriteHeader(401)
+		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
+		c.ServeJSON()
+		return
+	}
+
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetUserById(id)
 	if v == nil {
@@ -172,19 +208,36 @@ func (c *UserController) Login() {
 		Username string `valid:"Required"`
 		Password string `valid:"Required"`
 	}
+
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqData); err == nil {
+		if errorMessage := utils.CheckUsernamePassword(reqData.Username, reqData.Password); errorMessage != "ok"{
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,errorMessage, ""}
+			c.ServeJSON()
+			return
+		}
 		if ok, user := models.Login(reqData.Username, reqData.Password); ok {
-			c.Data["json"] = successReturn
-			var returnData = &UserSuccessLoginData{user.Token, user.Username}
-			c.Data["json"] = &ControllerReturn{0, 0, "ok", returnData}
+			et := utils.EasyToken{
+				Username: user.Username,
+				Uid:      int64(user.Id),
+				Expires:  time.Now().Unix() + 2 * 3600,
+			}
+
+			token, err := et.GetToken()
+			if token == "" || err != nil {
+				c.Data["json"] = errUserToken
+				c.ServeJSON()
+				return
+			}
+
+			var returnData = &UserSuccessLoginData{token, user.Username}
+			c.Data["json"] = &Response{0, 0, "ok", returnData}
 		} else {
 			c.Data["json"] = &errNoUserOrPass
 		}
 	} else {
-		c.Data["json"] = &ControllerReturn{1, 1, "failed", err.Error()}
+		c.Data["json"] = &errNoUserOrPass
 	}
-
-
 	c.ServeJSON()
 }
 
