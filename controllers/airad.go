@@ -2,7 +2,7 @@ package controllers
 
 import (
 	//"github.com/astaxie/beego"
-	"zzhj-airad-app-api/models"
+	"airad-app-api/models"
 	"strings"
 	"errors"
 	"encoding/json"
