@@ -20,7 +20,7 @@ func init() {
 // Run the migrations
 func (m *AirAd_20171109_164549) Up() {
 	m.SQL("ALTER TABLE air_ad ADD createdAt int, ADD nh3 varchar(10), " +
-		"ADD co varchar(10), ADD pm25 varchar(10), ADD pm10 varchar(10), ADD o3 varchar(10)," +
+		"ADD co varchar(10), ADD pm25 varchar(10), ADD pm10 varchar(10), ADD o3 varchar(10)" +
 			"ADD so2 varchar(10)")
 
 }
