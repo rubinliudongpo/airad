@@ -48,7 +48,7 @@ func (c *AirAdController) Post() {
 // GetOne ...
 // @Title GetOne
 // @Description get AirAd by id
-// @Param	id		path 	string	true		"The key for staticblock"
+// @Param	id		path 	string	true "The key for static block"
 // @Success 200 {object} models.AirAd
 // @Failure 403 :id is empty
 // @router /:id [get]
@@ -119,7 +119,7 @@ func (c *AirAdController) GetAll() {
 		}
 	}
 
-	l, err := models.GetAllAirAd(query, fields, sortby, order, offset, limit)
+	l, err := models.GetAllAirAds(query, fields, sortby, order, offset, limit)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
@@ -150,7 +150,6 @@ func (c *AirAdController) Put() {
 		c.Data["json"] = err.Error()
 	}
 	c.ServeJSON()
-
 }
 
 // Delete ...
@@ -169,5 +168,4 @@ func (c *AirAdController) Delete() {
 		c.Data["json"] = err.Error()
 	}
 	c.ServeJSON()
-
 }

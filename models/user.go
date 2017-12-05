@@ -7,7 +7,6 @@ import (
 	"strings"
 	"fmt"
 	"airad-app-api/utils"
-
 	"time"
 )
 
@@ -24,7 +23,7 @@ type User struct {
 	Username string `json:"username" orm:"column(username);unique;size(32)"`
 	Password string `json:"password" orm:"column(password);size(128)"`
 	Salt string `json:"salt" orm:"column(salt);size(128)"`
-	Token string `json:"token" orm:"column(token);size(32)"`
+	Token string `json:"token" orm:"column(token);size(256)"`
 	Gender int `json:"gender" orm:"column(gender);size(1)"`  // 0:Male, 1: Female, 2: undefined
 	Age int `json:"age" orm:"column(age):size(3)"`
 	Address string `json:"address" orm:"column(address);size(50)"`
@@ -33,6 +32,7 @@ type User struct {
 	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled
 	CreateAt int64 `json:"created_at" orm:"column(create_at);size(11)"`
 	UpdateAt int64 `json:"updated_at" rm:"column(update_at);size(11)"`
+	Device []*Device `orm:"reverse(many)"` // 设置一对多的反向关系
 }
 
 func Users() orm.QuerySeter {
@@ -151,37 +151,47 @@ func GetUserByUsername(username string) (err error, user *User) {
 	return err, nil
 }
 
-func AddUser(m *User) (id int64, err error) {
+func AddUser(m *User) (*User, error) {
 	o := orm.NewOrm()
 	salt, err := utils.GenerateSalt()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	passwordHash, err := utils.GeneratePassHash(m.Password, salt)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	CreatedAt := time.Now().UTC().Unix()
 	UpdatedAt := CreatedAt
 	LastLogin := CreatedAt
-	Status := 0
 
+	et := utils.EasyToken{
+		Username: m.Username,
+		Uid: 0,
+		Expires:  time.Now().Unix() + 2 * 3600,
+	}
+	token, err := et.GetToken()
 	user := User{
 		Username:m.Username,
 		Password: passwordHash,
 		Salt:salt,
+		Token:token,
 		Gender:m.Gender,
 		Age:m.Age,
 		Address:m.Address,
 		Email:m.Email,
 		LastLogin:LastLogin,
-		Status:Status,
+		Status:m.Status,
 		CreateAt:CreatedAt,
 		UpdateAt:UpdatedAt,
 	}
-	id, err = o.Insert(user)
-	return id, nil
+	_, err = o.Insert(&user)
+	if err == nil{
+		return &user, err
+	}
+
+	return nil, err
 }
 
 func UpdateUser(user *User) {

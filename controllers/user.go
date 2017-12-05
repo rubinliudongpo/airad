@@ -43,9 +43,9 @@ func (c *UserController) Post() {
 			c.ServeJSON()
 			return
 		}
-		if _, err := models.AddUser(&v); err == nil {
+		if user, err := models.AddUser(&v); err == nil {
 			c.Ctx.Output.SetStatus(201)
-			var returnData = &UserSuccessLoginData{v.Token, v.Username}
+			var returnData = &UserSuccessLoginData{user.Token, user.Username}
 			c.Data["json"] = &Response{0, 0, "ok", returnData}
 		} else {
 			c.Data["json"] = &Response{1, 1, "failed", err.Error()}

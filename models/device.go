@@ -9,7 +9,7 @@ import (
 )
 
 type Device struct {
-	Id int `json:"id, omitempty" orm:"column(id);pk;unique;auto_increment"`
+	Id int `json:"id, omitempty" orm:"column(id);pk;unique"`
 	DeviceName string `json:"device_name" orm:"column(device_name);unique;size(32)"`
 	Address string `json:"address" orm:"column(address);size(50)"`
 	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled
@@ -17,11 +17,12 @@ type Device struct {
 	UpdatedAt int `json:"updated_at, omitempty" orm:"column(updated_at);size(11)"`
 	Latitude string `json:"latitude, omitempty" orm:"column(latitude);size(12)"`
 	Longitude string `json:"longitude, omitempty" orm:"column(longitude);size(12)"`
-	User *User `json:"user" orm:"rel(fk)"`
+	User *User `orm:"rel(fk)"`
+	AirAd []*AirAd `orm:"reverse(many)"` // 设置一对多的反向关系
 }
 
 func init() {
-	orm.RegisterModel(new(AirAd))
+	orm.RegisterModel(new(Device))
 }
 
 // AddDevice insert a new Device into database and returns
@@ -53,7 +54,7 @@ func GetDevicesByUser(user *User, limit int) []*Device {
 	return devices
 }
 
-// GetAllDevices retrieves all AirAd matches certain condition. Returns empty list if
+// GetAllDevices retrieves all Device matches certain condition. Returns empty list if
 // no records exist
 func GetAllDevices(query map[string]string, fields []string, sortby []string, order []string,
 	offset int, limit int) (ml []interface{}, err error) {
@@ -104,7 +105,7 @@ func GetAllDevices(query map[string]string, fields []string, sortby []string, or
 		}
 	}
 
-	var l []AirAd
+	var l []Device
 	qs = qs.OrderBy(sortFields...).RelatedSel()
 	if _, err = qs.Limit(limit, offset).All(&l, fields...); err == nil {
 		if len(fields) == 0 {

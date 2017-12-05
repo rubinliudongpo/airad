@@ -20,8 +20,8 @@ type AirAd struct {
 	Temperature string `json:"temperature, omitempty" orm:"column(temperature);size(4)"`
 	Humidity string `json:"humidity, omitempty" orm:"column(humidity);size(4)"`
 	AqiQuality string `json:"aqi_quality, omitempty" orm:"column(aqi_quality);size(4)"`
-	Device *Device `json:"device" orm:"rel(fk)"`
 	Suggest string `json:"suggest, omitempty" orm:"column(suggest);size(4)"`
+	Device *Device `orm:"rel(fk)"`
 }
 
 func init() {
