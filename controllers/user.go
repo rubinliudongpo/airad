@@ -43,6 +43,19 @@ func (c *UserController) Post() {
 			c.ServeJSON()
 			return
 		}
+		if models.CheckUserName(v.Username){
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,"用户名称已经注册了", ""}
+			c.ServeJSON()
+			return
+		}
+		if models.CheckEmail(v.Email) {
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,"邮箱已经注册了", ""}
+			c.ServeJSON()
+			return
+		}
+
 		if user, err := models.AddUser(&v); err == nil {
 			c.Ctx.Output.SetStatus(201)
 			var returnData = &UserSuccessLoginData{user.Token, user.Username}
@@ -83,6 +96,8 @@ func (c *UserController) GetAll() {
 	// fields: col1,col2,entity.col3
 	if v := c.GetString("fields"); v != "" {
 		fields = strings.Split(v, ",")
+	} else {
+		fields = strings.Split("Username,Gender,Age,Address,Email,Token", ",")
 	}
 	// limit: 10 (default is 10)
 	if v, err := c.GetInt("limit"); err == nil {

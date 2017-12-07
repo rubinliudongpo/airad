@@ -32,10 +32,14 @@ func CheckNewUserPost(Username string, Password string, Age int,
 	valid.Required(Password, "Password").Message("密码必填")
 	valid.MinSize(Password, 6,"Password").Message("密码不能少于6位")
 	valid.MaxSize(Password, 20,"Password").Message("密码不能多于20位")
+	valid.Required(Age, "Age").Message("年龄必填")
 	valid.Range(Age, 1,100, "Age").Message("年龄在1到100岁")
 	valid.Range(Gender, 0,2, "Gender").Message("性别不正确")
 	valid.Required(Address, "Address").Message("地址必填")
-	valid.Email(Email, "Email").Message("邮箱必填")
+	valid.MinSize(Address, 6,"Address").Message("地址不能少于6位")
+	valid.MaxSize(Address, 50,"Address").Message("地址不能多于50位")
+	valid.Required(Email, "Email").Message("邮箱必填")
+	valid.Email(Email, "Email").Message("邮箱格式不正确")
 
 	if valid.HasErrors() {
 		// 如果有错误信息，证明验证没通过

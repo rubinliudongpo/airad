@@ -10,6 +10,7 @@ import (
 
 type Device struct {
 	Id int `json:"id, omitempty" orm:"column(id);pk;unique"`
+	//UserId int `json:"user_id, omitempty" orm:"column(user_id);size(11)"`
 	DeviceName string `json:"device_name" orm:"column(device_name);unique;size(32)"`
 	Address string `json:"address" orm:"column(address);size(50)"`
 	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled

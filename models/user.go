@@ -45,6 +45,12 @@ func CheckUserName(username string) bool {
 	return exist
 }
 
+// 检测用户是否存在
+func CheckEmail(email string) bool {
+	exist := Users().Filter("Email", email).Exist()
+	return exist
+}
+
 func GetUserById(id int) (v *User, err error) {
 	o := orm.NewOrm()
 	v = &User{Id: id}
@@ -229,7 +235,6 @@ func DeleteUser(id int) (err error) {
 	}
 	return
 }
-
 
 //func HashPassword(password string) (string, error) {
 //	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
