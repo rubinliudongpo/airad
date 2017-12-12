@@ -1,14 +1,13 @@
 package controllers
 
 import (
-	"airad-app-api/models"
-	"airad-app-api/utils"
+	"airad/models"
+	"airad/utils"
 	"encoding/json"
 	"errors"
 	"github.com/astaxie/beego"
 	"strings"
 	"strconv"
-	//"github.com/astaxie/beego/validation"
 	"time"
 	"fmt"
 )
@@ -61,10 +60,10 @@ func (c *UserController) Post() {
 			var returnData = &UserSuccessLoginData{user.Token, user.Username}
 			c.Data["json"] = &Response{0, 0, "ok", returnData}
 		} else {
-			c.Data["json"] = &Response{1, 1, "failed", err.Error()}
+			c.Data["json"] = &Response{1, 1, "用户注册失败", err.Error()}
 		}
 	} else {
-		c.Data["json"] = &Response{1, 1, "failed", err.Error()}
+		c.Data["json"] = &Response{1, 1, "用户注册失败", err.Error()}
 	}
 	c.ServeJSON()
 }
@@ -253,6 +252,26 @@ func (c *UserController) Login() {
 	} else {
 		c.Data["json"] = &errNoUserOrPass
 	}
+	c.ServeJSON()
+}
+
+// @Title 认证测试
+// @Description 测试错误码
+// @Success 200 {object}
+// @Failure 401 unauthorized
+// @router /auth [get]
+func (c *UserController) Auth() {
+	et := utils.EasyToken{}
+	authtoken := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	valido, err := et.ValidateToken(authtoken)
+	if !valido {
+		c.Ctx.ResponseWriter.WriteHeader(401)
+		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
+		c.ServeJSON()
+		return
+	}
+
+	c.Data["json"] = Response{0, 0, "is login", ""}
 	c.ServeJSON()
 }
 

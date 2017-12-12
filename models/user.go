@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 	"fmt"
-	"airad-app-api/utils"
+	"airad/utils"
 	"time"
 )
 
@@ -30,13 +30,20 @@ type User struct {
 	Email string `json:"email" orm:"column(email);size(50)"`
 	LastLogin int64 `json:"last_login" orm:"column(last_login);size(11)"`
 	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled
-	CreateAt int64 `json:"created_at" orm:"column(create_at);size(11)"`
-	UpdateAt int64 `json:"updated_at" rm:"column(update_at);size(11)"`
-	Device []*Device `orm:"reverse(many)"` // 设置一对多的反向关系
+	CreatedAt int64 `json:"created_at" orm:"column(created_at);size(11)"`
+	UpdatedAt int64 `json:"updated_at" orm:"column(updated_at);size(11)"`
+	DeviceCount int `json:"device_count" orm:"column(device_count);size(11);default(0)"`
+	//Device []*Device `orm:"reverse(many)"` // 设置一对多的反向关系
 }
 
 func Users() orm.QuerySeter {
 	return orm.NewOrm().QueryTable(new(User))
+}
+
+// 检测用户是否存在
+func CheckUserId(userId int) bool {
+	exist := Users().Filter("Id", userId).Exist()
+	return exist
 }
 
 // 检测用户是否存在
@@ -189,8 +196,8 @@ func AddUser(m *User) (*User, error) {
 		Email:m.Email,
 		LastLogin:LastLogin,
 		Status:m.Status,
-		CreateAt:CreatedAt,
-		UpdateAt:UpdatedAt,
+		CreatedAt:CreatedAt,
+		UpdatedAt:UpdatedAt,
 	}
 	_, err = o.Insert(&user)
 	if err == nil{

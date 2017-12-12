@@ -6,32 +6,72 @@ import (
 	"reflect"
 	"fmt"
 	"errors"
+	"time"
 )
 
 type Device struct {
-	Id int `json:"id, omitempty" orm:"column(id);pk;unique"`
-	//UserId int `json:"user_id, omitempty" orm:"column(user_id);size(11)"`
+	Id int `json:"id, omitempty" orm:"column(id);pk;unique;auto_increment"`
+	UserId int `json:"user_id" orm:"column(user_id);size(11)"`
 	DeviceName string `json:"device_name" orm:"column(device_name);unique;size(32)"`
 	Address string `json:"address" orm:"column(address);size(50)"`
 	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled
-	CreatedAt int `json:"created_at, omitempty" orm:"column(create_at);size(11)"`
-	UpdatedAt int `json:"updated_at, omitempty" orm:"column(updated_at);size(11)"`
+	CreatedAt int64 `json:"created_at, omitempty" orm:"column(created_at);size(11)"`
+	UpdatedAt int64 `json:"updated_at, omitempty" orm:"column(updated_at);size(11)"`
 	Latitude string `json:"latitude, omitempty" orm:"column(latitude);size(12)"`
 	Longitude string `json:"longitude, omitempty" orm:"column(longitude);size(12)"`
-	User *User `orm:"rel(fk)"`
-	AirAd []*AirAd `orm:"reverse(many)"` // 设置一对多的反向关系
+	//User *User `json:"user_id" orm:"rel(fk)"`
+	//AirAd []*AirAd `orm:"reverse(many)"` // 设置一对多的反向关系
+}
+
+type DeviceRequestStruct struct {
+	UserId int `json:"userId"`
+	Offset int `json:"offset"`
+	Limit int `json:"limit"`
+    Fields string `json:"fields"`
 }
 
 func init() {
 	orm.RegisterModel(new(Device))
 }
 
+func Devices() orm.QuerySeter {
+	return orm.NewOrm().QueryTable(new(Device))
+}
+
 // AddDevice insert a new Device into database and returns
 // last inserted Id on success.
 func AddDevice(m *Device) (id int64, err error) {
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
+
+	CreatedAt := time.Now().UTC().Unix()
+	UpdatedAt := CreatedAt
+
+	device := Device{
+		DeviceName:m.DeviceName,
+		UserId:m.UserId,
+		Address:m.Address,
+		Status:m.Status,
+		CreatedAt:CreatedAt,
+		UpdatedAt:UpdatedAt,
+		Latitude:m.Latitude,
+		Longitude:m.Longitude,
+		//User *User `json:"user_id" orm:"rel(fk)"`
+		//AirAd []*AirAd `orm:"reverse(many)"`
+	}
+
+	//var id int64
+	id, err = o.Insert(&device)
+	if err == nil{
+		return id, err
+	}
+
+	return 0, err
+}
+
+// 检测用户是否存在
+func CheckDeviceName(devicename string) bool {
+	exist := Devices().Filter("DeviceName", devicename).Exist()
+	return exist
 }
 
 // GetDeviceById retrieves Device by Id. Returns error if
@@ -47,12 +87,12 @@ func GetDeviceById(id int) (v *Device, err error) {
 
 // GetDeviceByUser retrieves Device by User. Returns error if
 // Id doesn't exist
-func GetDevicesByUser(user *User, limit int) []*Device {
+func GetDevicesByUserId(userId int, fields []string, limit int, offset int) (devices []*Device, err error) {
 	o := orm.NewOrm()
-	var device Device
-	var devices []*Device
-	o.QueryTable(device).Filter("User", user).OrderBy("-CreatedAt").Limit(limit).All(&devices)
-	return devices
+	if _, err = o.QueryTable(new(Device)).Filter("user_id", userId).Limit(limit, offset).All(&devices, fields...); err == nil {
+		return devices, nil
+	}
+	return nil, err
 }
 
 // GetAllDevices retrieves all Device matches certain condition. Returns empty list if

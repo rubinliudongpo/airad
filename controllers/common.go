@@ -31,6 +31,11 @@ type UserSuccessLoginData struct {
 	UserName string `json:"user_name"`
 }
 
+// CreateDevice definition.
+type CreateDeviceData struct {
+	Id int `json:"id"`
+}
+
 // Predefined controller error/success values.
 var (
 	successReturn = &Response{200, 0, "ok", "ok"}
