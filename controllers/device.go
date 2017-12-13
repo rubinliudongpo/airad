@@ -48,16 +48,16 @@ func (c *DeviceController) Post() {
 			return
 		}
 
-		if ! models.CheckUserId(v.UserId){
+		if !models.CheckUserId(v.UserId){
 			c.Ctx.ResponseWriter.WriteHeader(403)
-			c.Data["json"] = Response{403, 403,"用户ID不存在", ""}
+			c.Data["json"] = Response{403, 403,"设备ID不存在", ""}
 			c.ServeJSON()
 			return
 		}
 
 		if deviceId, err := models.AddDevice(&v); err == nil {
 			c.Ctx.Output.SetStatus(201)
-			var returnData = &CreateDeviceData{int(deviceId)}
+			var returnData = &CreateObjectData{int(deviceId)}
 			c.Data["json"] = &Response{0, 0, "ok", returnData}
 		} else {
 			c.Data["json"] = err.Error()

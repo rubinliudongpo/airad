@@ -6,11 +6,13 @@ import (
 	"reflect"
 	"strings"
 	"github.com/astaxie/beego/orm"
+	"time"
 )
 
 type AirAd struct {
 	Id int `json:"id, omitempty" orm:"column(id);pk;unique;auto_increment"`
-	CreatedAt int `json:"created_at, omitempty" orm:"column(create_at);size(11)"`
+	DeviceId int `json:"device_id" orm:"column(device_id);size(11)"`
+	CreatedAt int64 `json:"created_at, omitempty" orm:"column(created_at);size(11)"`
 	Nh3 string `json:"nh3, omitempty" orm:"column(nh3);size(4)"`
 	Co string `json:"co, omitempty" orm:"column(co);size(4)"`
 	O3 string `json:"o3, omitempty" orm:"column(o3);size(4)"`
@@ -28,12 +30,38 @@ func init() {
 	orm.RegisterModel(new(AirAd))
 }
 
+func AirAds() orm.QuerySeter {
+	return orm.NewOrm().QueryTable(new(AirAd))
+}
+
 // AddAirAd insert a new AirAd into database and returns
 // last inserted Id on success.
 func AddAirAd(m *AirAd) (id int64, err error) {
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
+
+	CreatedAt := time.Now().UTC().Unix()
+
+	airAd := AirAd{
+		DeviceId:m.DeviceId,
+		Nh3:m.Nh3,
+		Pm10:m.Pm10,
+		Pm25:m.Pm25,
+		Co:m.Co,
+		O3:m.O3,
+		So2:m.So2,
+		Temperature:m.Temperature,
+		Humidity:m.Humidity,
+		AqiQuality:m.AqiQuality,
+		Suggest:m.Suggest,
+		CreatedAt:CreatedAt,
+	}
+
+	id, err = o.Insert(&airAd)
+	if err == nil{
+		return id, err
+	}
+
+	return 0, err
 }
 
 // GetAirAdById retrieves AirAd by Id. Returns error if
@@ -45,6 +73,12 @@ func GetAirAdById(id int) (v *AirAd, err error) {
 		return v, nil
 	}
 	return nil, err
+}
+
+// 检测DeviceId是否存在
+func CheckDeviceId(deviceId int) bool {
+	exist := Devices().Filter("Id", deviceId).Exist()
+	return exist
 }
 
 // GetAllAirAds retrieves all AirAd matches certain condition. Returns empty list if

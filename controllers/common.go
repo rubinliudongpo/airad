@@ -32,7 +32,7 @@ type UserSuccessLoginData struct {
 }
 
 // CreateDevice definition.
-type CreateDeviceData struct {
+type CreateObjectData struct {
 	Id int `json:"id"`
 }
 

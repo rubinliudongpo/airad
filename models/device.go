@@ -68,9 +68,9 @@ func AddDevice(m *Device) (id int64, err error) {
 	return 0, err
 }
 
-// 检测用户是否存在
-func CheckDeviceName(devicename string) bool {
-	exist := Devices().Filter("DeviceName", devicename).Exist()
+// 检测DeviceName是否存在
+func CheckDeviceName(deviceName string) bool {
+	exist := Devices().Filter("DeviceName", deviceName).Exist()
 	return exist
 }
 

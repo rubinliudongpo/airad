@@ -7,6 +7,7 @@ import (
 	"errors"
 	"encoding/json"
 	"strconv"
+	"airad/utils"
 )
 
 // AirAdController operations for AirAd
@@ -33,9 +34,25 @@ func (c *AirAdController) URLMapping() {
 func (c *AirAdController) Post() {
 	var v models.AirAd
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddAirAd(&v); err == nil {
+		if errorMessage := utils.CheckNewAirAdPost(v.DeviceId, v.Co, v.Humidity, v.Temperature,
+			v.Pm25, v.Pm10, v.Nh3, v.O3, v.Suggest, v.AqiQuality); errorMessage != "ok"{
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,errorMessage, ""}
+			c.ServeJSON()
+			return
+		}
+		if !models.CheckDeviceId(v.DeviceId){
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,"设备Id不存在", ""}
+			c.ServeJSON()
+			return
+		}
+
+
+		if airAdId, err := models.AddAirAd(&v); err == nil {
 			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
+			var returnData = &CreateObjectData{int(airAdId)}
+			c.Data["json"] = &Response{0, 0, "ok", returnData}
 		} else {
 			c.Data["json"] = err.Error()
 		}
