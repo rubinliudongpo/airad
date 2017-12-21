@@ -32,7 +32,7 @@ type User struct {
 	Status int `json:"status" orm:"column(status);size(1)"`// 0: enabled, 1:disabled
 	CreatedAt int64 `json:"created_at" orm:"column(created_at);size(11)"`
 	UpdatedAt int64 `json:"updated_at" orm:"column(updated_at);size(11)"`
-	DeviceCount int `json:"device_count" orm:"column(device_count);size(11);default(0)"`
+	DeviceCount int `json:"device_count" orm:"column(device_count);size(64);default(0)"`
 	//Device []*Device `orm:"reverse(many)"` // 设置一对多的反向关系
 }
 
@@ -210,6 +210,22 @@ func AddUser(m *User) (*User, error) {
 func UpdateUser(user *User) {
 	o := orm.NewOrm()
 	o.Update(user)
+}
+
+// UpdateDevice updates User by DeviceCount and returns error if
+// the record to be updated doesn't exist
+func UpdateUserDeviceCount(m *User) (err error) {
+	o := orm.NewOrm()
+	v := User{Id: m.Id}
+	m.DeviceCount += 1
+	// ascertain id exists in the database
+	if err = o.Read(&v); err == nil {
+		var num int64
+		if num, err = o.Update(m); err == nil {
+			fmt.Println("Number of records updated in database:", num)
+		}
+	}
+	return
 }
 
 

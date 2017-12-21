@@ -84,7 +84,7 @@ func CheckDeviceId(deviceId int) bool {
 // GetAllAirAds retrieves all AirAd matches certain condition. Returns empty list if
 // no records exist
 func GetAllAirAds(query map[string]string, fields []string, sortby []string, order []string,
-	offset int, limit int) (ml []interface{}, err error) {
+	offset int, limit int, userId int) (ml []interface{}, err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(AirAd))
 	// query k=v

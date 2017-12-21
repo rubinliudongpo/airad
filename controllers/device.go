@@ -8,6 +8,7 @@ import (
 	"airad/models"
 	"github.com/astaxie/beego"
 	"airad/utils"
+	"fmt"
 )
 
 //  DeviceController operations for Device
@@ -33,6 +34,18 @@ func (c *DeviceController) URLMapping() {
 // @router / [post]
 func (c *DeviceController) Post() {
 	var v models.Device
+	token := c.Ctx.Input.Header("token")
+	//id := c.Ctx.Input.Header("id")
+	et := utils.EasyToken{}
+	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	valido, err := et.ValidateToken(token)
+	if !valido {
+		c.Ctx.ResponseWriter.WriteHeader(401)
+		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
+		c.ServeJSON()
+		return
+	}
+
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		if errorMessage := utils.CheckNewDevicePost(v.UserId, v.DeviceName,
 			v.Address, v.Status, v.Latitude, v.Longitude); errorMessage != "ok"{
@@ -50,12 +63,24 @@ func (c *DeviceController) Post() {
 
 		if !models.CheckUserId(v.UserId){
 			c.Ctx.ResponseWriter.WriteHeader(403)
-			c.Data["json"] = Response{403, 403,"设备ID不存在", ""}
+			c.Data["json"] = Response{403, 403,"用户ID不存在", ""}
 			c.ServeJSON()
 			return
 		}
 
 		if deviceId, err := models.AddDevice(&v); err == nil {
+			if user, err := models.GetUserById(v.UserId); err == nil {
+				models.UpdateUserDeviceCount(user)
+				c.Ctx.Output.SetStatus(201)
+				var returnData = &CreateObjectData{int(deviceId)}
+				c.Data["json"] = &Response{0, 0, "ok", returnData}
+			} else {
+				c.Ctx.ResponseWriter.WriteHeader(403)
+				c.Data["json"] = Response{403, 403,"用户Id不存在", ""}
+				c.ServeJSON()
+				return
+			}
+
 			c.Ctx.Output.SetStatus(201)
 			var returnData = &CreateObjectData{int(deviceId)}
 			c.Data["json"] = &Response{0, 0, "ok", returnData}
@@ -106,6 +131,18 @@ func (c *DeviceController) GetAll() {
 	var query = make(map[string]string)
 	var limit int = 10
 	var offset int
+
+	token := c.Ctx.Input.Header("token")
+	//id := c.Ctx.Input.Header("id")
+	et := utils.EasyToken{}
+	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	valido, err := et.ValidateToken(token)
+	if !valido {
+		c.Ctx.ResponseWriter.WriteHeader(401)
+		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
+		c.ServeJSON()
+		return
+	}
 
 	// fields: col1,col2,entity.col3
 	if v := c.GetString("fields"); v != "" {

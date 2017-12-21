@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"airad/utils"
+	"fmt"
 )
 
 // AirAdController operations for AirAd
@@ -33,6 +34,18 @@ func (c *AirAdController) URLMapping() {
 // @router / [post]
 func (c *AirAdController) Post() {
 	var v models.AirAd
+
+	token := c.Ctx.Input.Header("token")
+	//id := c.Ctx.Input.Header("id")
+	et := utils.EasyToken{}
+	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	valido, err := et.ValidateToken(token)
+	if !valido {
+		c.Ctx.ResponseWriter.WriteHeader(401)
+		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
+		c.ServeJSON()
+		return
+	}
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		if errorMessage := utils.CheckNewAirAdPost(v.DeviceId, v.Co, v.Humidity, v.Temperature,
 			v.Pm25, v.Pm10, v.Nh3, v.O3, v.Suggest, v.AqiQuality); errorMessage != "ok"{
@@ -50,9 +63,18 @@ func (c *AirAdController) Post() {
 
 
 		if airAdId, err := models.AddAirAd(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			var returnData = &CreateObjectData{int(airAdId)}
-			c.Data["json"] = &Response{0, 0, "ok", returnData}
+			if device, err := models.GetDeviceById(v.DeviceId); err == nil {
+				models.UpdateDeviceAirAdCount(device)
+				c.Ctx.Output.SetStatus(201)
+				var returnData = &CreateObjectData{int(airAdId)}
+				c.Data["json"] = &Response{0, 0, "ok", returnData}
+			} else {
+				c.Ctx.ResponseWriter.WriteHeader(403)
+				c.Data["json"] = Response{403, 403,"设备Id不存在", ""}
+				c.ServeJSON()
+				return
+			}
+
 		} else {
 			c.Data["json"] = err.Error()
 		}
@@ -101,6 +123,29 @@ func (c *AirAdController) GetAll() {
 	var query = make(map[string]string)
 	var limit int = 10
 	var offset int
+	var userId int
+
+	token := c.Ctx.Input.Header("token")
+	//id := c.Ctx.Input.Header("id")
+	et := utils.EasyToken{}
+	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	validation, err := et.ValidateToken(token)
+	if !validation {
+		c.Ctx.ResponseWriter.WriteHeader(401)
+		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
+		c.ServeJSON()
+		return
+	}
+
+
+	if found, user := models.GetUserByToken(token); !found {
+		c.Ctx.Output.SetStatus(201)
+		c.Data["json"] = &Response{401, 401, "未找到相关的用户", ""}
+		c.ServeJSON()
+		return
+	} else {
+		userId = user.Id
+	}
 
 	// fields: col1,col2,entity.col3
 	if v := c.GetString("fields"); v != "" {
@@ -136,7 +181,7 @@ func (c *AirAdController) GetAll() {
 		}
 	}
 
-	l, err := models.GetAllAirAds(query, fields, sortby, order, offset, limit)
+	l, err := models.GetAllAirAds(query, fields, sortby, order, offset, limit, userId)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {

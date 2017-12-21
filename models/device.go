@@ -19,6 +19,7 @@ type Device struct {
 	UpdatedAt int64 `json:"updated_at, omitempty" orm:"column(updated_at);size(11)"`
 	Latitude string `json:"latitude, omitempty" orm:"column(latitude);size(12)"`
 	Longitude string `json:"longitude, omitempty" orm:"column(longitude);size(12)"`
+	AirAdCount int64 `json:"airad_count, omitempty" orm:"column(airad_count);size(64)"`
 	//User *User `json:"user_id" orm:"rel(fk)"`
 	//AirAd []*AirAd `orm:"reverse(many)"` // 设置一对多的反向关系
 }
@@ -183,6 +184,23 @@ func UpdateDeviceById(m *Device) (err error) {
 	}
 	return
 }
+
+// UpdateDevice updates Device by AirAdCount and returns error if
+// the record to be updated doesn't exist
+func UpdateDeviceAirAdCount(m *Device) (err error) {
+	o := orm.NewOrm()
+	v := Device{Id: m.Id}
+	m.AirAdCount += 1
+	// ascertain id exists in the database
+	if err = o.Read(&v); err == nil {
+		var num int64
+		if num, err = o.Update(m); err == nil {
+			fmt.Println("Number of records updated in database:", num)
+		}
+	}
+	return
+}
+
 
 // DeleteDevice deletes Device by Id and returns error if
 // the record to be deleted doesn't exist

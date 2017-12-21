@@ -216,7 +216,7 @@ func (c *UserController) Delete() {
 // @Param	password		query 	string	true		"The password for login"
 // @Success 200 {string} login success
 // @Failure 403 user not exist
-// @router /login [get]
+// @router /login [POST]
 func (c *UserController) Login() {
 	var reqData struct {
 		Username string `valid:"Required"`
