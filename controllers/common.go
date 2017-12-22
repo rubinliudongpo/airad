@@ -36,6 +36,18 @@ type CreateObjectData struct {
 	Id int `json:"id"`
 }
 
+// GetDevices definition.
+type GetDeviceData struct {
+	TotalCount int64 `json:"total_count"`
+	Devices interface{} `json:"devices"`
+}
+
+// GetAirAds definition.
+type GetAirAdData struct {
+	TotalCount int64 `json:"total_count"`
+	AirAds interface{} `json:"airads"`
+}
+
 // Predefined controller error/success values.
 var (
 	successReturn = &Response{200, 0, "ok", "ok"}

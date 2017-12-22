@@ -61,6 +61,13 @@ func (c *AirAdController) Post() {
 			return
 		}
 
+		if !models.CheckDeviceIdAndToken(v.DeviceId, token){
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,"用户ID和Token不匹配", ""}
+			c.ServeJSON()
+			return
+		}
+
 
 		if airAdId, err := models.AddAirAd(&v); err == nil {
 			if device, err := models.GetDeviceById(v.DeviceId); err == nil {
@@ -121,10 +128,11 @@ func (c *AirAdController) GetAll() {
 	var sortby []string
 	var order []string
 	var query = make(map[string]string)
-	var limit int = 10
+	var limit int = 20
 	var offset int
-	var userId int
+	var deviceId int
 
+	deviceId, err := strconv.Atoi(c.Ctx.Input.Header("device_id"))
 	token := c.Ctx.Input.Header("token")
 	//id := c.Ctx.Input.Header("id")
 	et := utils.EasyToken{}
@@ -137,14 +145,12 @@ func (c *AirAdController) GetAll() {
 		return
 	}
 
-
-	if found, user := models.GetUserByToken(token); !found {
+	found, _ := models.GetUserByToken(token)
+	if  !found {
 		c.Ctx.Output.SetStatus(201)
 		c.Data["json"] = &Response{401, 401, "未找到相关的用户", ""}
 		c.ServeJSON()
 		return
-	} else {
-		userId = user.Id
 	}
 
 	// fields: col1,col2,entity.col3
@@ -181,11 +187,12 @@ func (c *AirAdController) GetAll() {
 		}
 	}
 
-	l, err := models.GetAllAirAds(query, fields, sortby, order, offset, limit, userId)
+	l, totalCount, err := models.GetAllAirAds(query, fields, sortby, order, offset, limit, deviceId)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
-		c.Data["json"] = l
+		var returnData = &GetAirAdData{totalCount, l}
+		c.Data["json"] = &Response{0, 0, "ok", returnData}
 	}
 	c.ServeJSON()
 }

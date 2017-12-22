@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"airad/utils"
 	"time"
+	//"github.com/astaxie/beego"
 )
 
 func (u *User) TableName() string {
@@ -53,15 +54,44 @@ func CheckUserName(username string) bool {
 }
 
 // 检测用户是否存在
+func CheckUserIdAndToken(userId int, token string) bool {
+	exist := Users().Filter("Id", userId).Filter("Token", token).Exist()
+	return exist
+}
+
+
+// 检测用户是否存在
 func CheckEmail(email string) bool {
 	exist := Users().Filter("Email", email).Exist()
 	return exist
 }
 
+// CheckPass compare input password.
+func (u *User) CheckPassword(password string) (ok bool, err error) {
+	hash, err := utils.GeneratePassHash(password, u.Salt)
+	if err != nil {
+		return false, err
+	}
+
+	return u.Password == hash, nil
+}
+
+// 根据用户ID获取用户
 func GetUserById(id int) (v *User, err error) {
 	o := orm.NewOrm()
 	v = &User{Id: id}
 	if err = o.QueryTable(new(User)).Filter("Id", id).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
+
+// 根据用户名字获取用户
+func GetUserByUserName(username string) (v *User, err error) {
+	o := orm.NewOrm()
+	v = &User{Username: username}
+	if err = o.QueryTable(new(User)).Filter("Username", username).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err
@@ -148,11 +178,19 @@ func GetUserByToken(token string) (bool, User) {
 	return err != orm.ErrNoRows, user
 }
 
-func Login(username string, password string) (bool, User) {
+func Login(username string, password string) (bool, *User) {
 	o := orm.NewOrm()
-	var user User
-	err := o.QueryTable(user).Filter("Username", username).Filter("Password", password).One(&user)
+	user, err := GetUserByUserName(username)
+	if err != nil {
+		return false, nil
+	}
+	passwordHash, err := utils.GeneratePassHash(password, user.Salt)
+	if err != nil {
+		return false, nil
+	}
+	err = o.QueryTable(user).Filter("Username", username).Filter("Password", passwordHash).One(user)
 	return err != orm.ErrNoRows, user
+
 }
 
 func GetUserByUsername(username string) (err error, user *User) {
@@ -228,6 +266,38 @@ func UpdateUserDeviceCount(m *User) (err error) {
 	return
 }
 
+// updates User's Token and returns error if
+// the record to be updated doesn't exist
+func UpdateUserToken(m *User, token string) (err error) {
+	o := orm.NewOrm()
+	v := User{Id: m.Id}
+	m.Token = token
+	// ascertain id exists in the database
+	if err = o.Read(&v); err == nil {
+		var num int64
+		if num, err = o.Update(m); err == nil {
+			fmt.Println("Number of records updated in database:", num)
+		}
+	}
+	return err
+}
+
+// updates User's LastLogin and returns error if
+// the record to be updated doesn't exist
+func UpdateUserLastLogin(m *User) (err error) {
+	o := orm.NewOrm()
+	v := User{Id: m.Id}
+	lastLogin := time.Now().UTC().Unix()
+	m.LastLogin = lastLogin
+	// ascertain id exists in the database
+	if err = o.Read(&v); err == nil {
+		var num int64
+		if num, err = o.Update(m); err == nil {
+			fmt.Println("Number of records updated in database:", num)
+		}
+	}
+	return err
+}
 
 // UpdateUser updates User by Id and returns error if
 // the record to be updated doesn't exist

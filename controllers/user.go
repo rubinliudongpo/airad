@@ -84,8 +84,8 @@ func (c *UserController) GetAll() {
 	//id := c.Ctx.Input.Header("id")
 	et := utils.EasyToken{}
 	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
-	valido, err := et.ValidateToken(token)
-	if !valido {
+	validation, err := et.ValidateToken(token)
+	if !validation {
 		c.Ctx.ResponseWriter.WriteHeader(401)
 		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
 		c.ServeJSON()
@@ -222,6 +222,7 @@ func (c *UserController) Login() {
 		Username string `valid:"Required"`
 		Password string `valid:"Required"`
 	}
+	var token string
 
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &reqData); err == nil {
 		if errorMessage := utils.CheckUsernamePassword(reqData.Username, reqData.Password); errorMessage != "ok"{
@@ -231,18 +232,26 @@ func (c *UserController) Login() {
 			return
 		}
 		if ok, user := models.Login(reqData.Username, reqData.Password); ok {
-			et := utils.EasyToken{
-				Username: user.Username,
-				Uid:      int64(user.Id),
-				Expires:  time.Now().Unix() + 2 * 3600,
+			et := utils.EasyToken{}
+			validation, err := et.ValidateToken(user.Token)
+			if !validation {
+				et = utils.EasyToken{
+					Username: user.Username,
+					Uid:      int64(user.Id),
+					Expires:  time.Now().Unix() + 2 * 3600,
+				}
+				token, err = et.GetToken()
+				if token == "" || err != nil {
+					c.Data["json"] = errUserToken
+					c.ServeJSON()
+					return
+				} else {
+					models.UpdateUserToken(user, token)
+				}
+			} else {
+				token = user.Token
 			}
-
-			token, err := et.GetToken()
-			if token == "" || err != nil {
-				c.Data["json"] = errUserToken
-				c.ServeJSON()
-				return
-			}
+			models.UpdateUserLastLogin(user)
 
 			var returnData = &UserSuccessLoginData{token, user.Username}
 			c.Data["json"] = &Response{0, 0, "ok", returnData}
@@ -262,9 +271,9 @@ func (c *UserController) Login() {
 // @router /auth [get]
 func (c *UserController) Auth() {
 	et := utils.EasyToken{}
-	authtoken := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
-	valido, err := et.ValidateToken(authtoken)
-	if !valido {
+	token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
+	validation, err := et.ValidateToken(token)
+	if !validation {
 		c.Ctx.ResponseWriter.WriteHeader(401)
 		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
 		c.ServeJSON()

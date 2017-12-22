@@ -38,8 +38,8 @@ func (c *DeviceController) Post() {
 	//id := c.Ctx.Input.Header("id")
 	et := utils.EasyToken{}
 	//token := strings.TrimSpace(c.Ctx.Request.Header.Get("Authorization"))
-	valido, err := et.ValidateToken(token)
-	if !valido {
+	validation, err := et.ValidateToken(token)
+	if !validation {
 		c.Ctx.ResponseWriter.WriteHeader(401)
 		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
 		c.ServeJSON()
@@ -64,6 +64,13 @@ func (c *DeviceController) Post() {
 		if !models.CheckUserId(v.UserId){
 			c.Ctx.ResponseWriter.WriteHeader(403)
 			c.Data["json"] = Response{403, 403,"用户ID不存在", ""}
+			c.ServeJSON()
+			return
+		}
+
+		if !models.CheckUserIdAndToken(v.UserId, token){
+			c.Ctx.ResponseWriter.WriteHeader(403)
+			c.Data["json"] = Response{403, 403,"用户ID和Token不匹配", ""}
 			c.ServeJSON()
 			return
 		}
@@ -131,6 +138,7 @@ func (c *DeviceController) GetAll() {
 	var query = make(map[string]string)
 	var limit int = 10
 	var offset int
+	var userId int
 
 	token := c.Ctx.Input.Header("token")
 	//id := c.Ctx.Input.Header("id")
@@ -142,6 +150,15 @@ func (c *DeviceController) GetAll() {
 		c.Data["json"] = Response{401, 401, fmt.Sprintf("%s", err), ""}
 		c.ServeJSON()
 		return
+	}
+
+	if found, user := models.GetUserByToken(token); !found {
+		c.Ctx.Output.SetStatus(201)
+		c.Data["json"] = &Response{401, 401, "未找到相关的用户", ""}
+		c.ServeJSON()
+		return
+	} else {
+		userId = user.Id
 	}
 
 	// fields: col1,col2,entity.col3
@@ -178,11 +195,12 @@ func (c *DeviceController) GetAll() {
 		}
 	}
 
-	l, err := models.GetAllDevices(query, fields, sortby, order, offset, limit)
+	l, totalCount, err := models.GetAllDevices(query, fields, sortby, order, offset, limit, userId)
 	if err != nil {
 		c.Data["json"] = err.Error()
 	} else {
-		c.Data["json"] = l
+		var returnData = &GetDeviceData{totalCount, l}
+		c.Data["json"] = &Response{0, 0, "ok", returnData}
 	}
 	c.ServeJSON()
 }

@@ -81,10 +81,22 @@ func CheckDeviceId(deviceId int) bool {
 	return exist
 }
 
+// 检测DeviceId vs. Token 是否匹配
+func CheckDeviceIdAndToken(deviceId int, token string) bool {
+	o := orm.NewOrm()
+	var device Device
+	if err := o.QueryTable(new(Device)).Filter("Id", deviceId).RelatedSel().One(&device); err == nil {
+		exist := Users().Filter("Id", device.UserId).Filter("Token", token).Exist()
+		return exist
+	}
+	return false
+}
+
+
 // GetAllAirAds retrieves all AirAd matches certain condition. Returns empty list if
 // no records exist
 func GetAllAirAds(query map[string]string, fields []string, sortby []string, order []string,
-	offset int, limit int, userId int) (ml []interface{}, err error) {
+	offset int, limit int, deviceId int) (ml []interface{}, totalCount int64,err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(AirAd))
 	// query k=v
@@ -105,7 +117,7 @@ func GetAllAirAds(query map[string]string, fields []string, sortby []string, ord
 				} else if order[i] == "asc" {
 					orderby = v
 				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
+					return nil, 0,errors.New("Error: Invalid order. Must be either [asc|desc]")
 				}
 				sortFields = append(sortFields, orderby)
 			}
@@ -119,22 +131,23 @@ func GetAllAirAds(query map[string]string, fields []string, sortby []string, ord
 				} else if order[0] == "asc" {
 					orderby = v
 				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
+					return nil, 0, errors.New("Error: Invalid order. Must be either [asc|desc]")
 				}
 				sortFields = append(sortFields, orderby)
 			}
 		} else if len(sortby) != len(order) && len(order) != 1 {
-			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
+			return nil, 0, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
 		}
 	} else {
 		if len(order) != 0 {
-			return nil, errors.New("Error: unused 'order' fields")
+			return nil, 0, errors.New("Error: unused 'order' fields")
 		}
 	}
 
 	var l []AirAd
 	qs = qs.OrderBy(sortFields...).RelatedSel()
-	if _, err = qs.Limit(limit, offset).All(&l, fields...); err == nil {
+	totalCount, err = qs.Filter("DeviceId", deviceId).Count()
+	if _, err = qs.Filter("DeviceId", deviceId).Limit(limit, offset).All(&l, fields...); err == nil {
 		if len(fields) == 0 {
 			for _, v := range l {
 				ml = append(ml, v)
@@ -150,9 +163,9 @@ func GetAllAirAds(query map[string]string, fields []string, sortby []string, ord
 				ml = append(ml, m)
 			}
 		}
-		return ml, nil
+		return ml, totalCount,nil
 	}
-	return nil, err
+	return nil, 0, err
 }
 
 // UpdateAirAd updates AirAd by Id and returns error if
