@@ -10,7 +10,7 @@ import (
 )
 
 type Device struct {
-	Id int `json:"id, omitempty" orm:"column(id);pk;unique;auto_increment"`
+	Id int `json:"id, omitempty" orm:"column(id);pk;unique;auto_increment;int(11)"`
 	UserId int `json:"user_id" orm:"column(user_id);size(11)"`
 	DeviceName string `json:"device_name" orm:"column(device_name);unique;size(32)"`
 	Address string `json:"address" orm:"column(address);size(50)"`

@@ -20,7 +20,7 @@ func init() {
 }
 
 type User struct {
-	Id int `json:"id" orm:"column(id);pk;unique;auto_increment"`
+	Id int `json:"id" orm:"column(id);pk;unique;auto_increment;int(11)"`
 	Username string `json:"username" orm:"column(username);unique;size(32)"`
 	Password string `json:"password" orm:"column(password);size(128)"`
 	Salt string `json:"salt" orm:"column(salt);size(128)"`
