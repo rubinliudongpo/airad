@@ -8,7 +8,7 @@
 package routers
 
 import (
-	"airad/controllers"
+	"github.com/rubinliudongpo/airad/controllers"
 	"github.com/astaxie/beego"
 	//"airad/filters"
 )

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strconv"
 	"strings"
-	"airad/models"
+	"github.com/rubinliudongpo/airad/models"
 	"github.com/astaxie/beego"
-	"airad/utils"
+	"github.com/rubinliudongpo/airad/utils"
 	"fmt"
 )
 

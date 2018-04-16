@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "airad/routers"
-	"airad/controllers"
+	_ "github.com/rubinliudongpo/airad/routers"
+	"github.com/rubinliudongpo/airad/controllers"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
