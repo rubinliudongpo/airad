@@ -21,7 +21,7 @@ which supports mobile app as cloud service
 ## 如何开始
 
 - 安装 [bee](https://github.com/beego/bee) 工具
-- go get github.com/rubinliudongpo/airad （注意配置GOROOT，GOPATH，详情请参考 http://sourabhbajaj.com/mac-setup/Go/README.html）
+- go get github.com/rubinliudongpo/airad （注意配置GOROOT，GOPATH，详情请参考 http://sourabhbajaj.com/mac-setup/Go/README.html ）
 - 在mysql数据库里创建数据库名字叫airad,创建（并授权给）用户（gouser）和密码（gopassword）
 - 导入airad.sql (mysql  -u gouser -p  airad < YOUR_PATH/airad.sql)
 
