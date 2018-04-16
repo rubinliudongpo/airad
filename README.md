@@ -20,11 +20,8 @@ which supports mobile app as cloud service
 
 ## 如何开始
 
-- 克隆代码到 $GOPATH/src 下
-- 安装上面的依赖
 - 安装 [bee](https://github.com/beego/bee) 工具
-- 在mysql数据库里创建数据库名字叫airad
-
+- go get github.com/rubinliudongpo/airad （注意配置GOROOT，GOPATH，详情请参考 http://sourabhbajaj.com/mac-setup/Go/README.html）
+- 在mysql数据库里创建数据库名字叫airad,创建（并授权给）用户（gouser）和密码（gopassword）
 
 ## 注意
-
