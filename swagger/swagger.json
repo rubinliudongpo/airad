@@ -451,36 +451,17 @@
                     "type": "integer",
                     "format": "int64"
                 },
-                "created_at": {
-                    "type": "integer",
-                    "format": "int64"
-                },
                 "email": {
                     "type": "string"
                 },
                 "gender": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "last_login": {
-                    "type": "integer",
-                    "format": "int64"
+                    "type": "int, 0:Male, 1: Female, 2: undefined"
                 },
                 "password": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "integer",
+                    "type": "int, 0: enabled, 1:disabled",
                     "format": "int64"
                 },
                 "username": {
