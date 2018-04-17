@@ -24,5 +24,7 @@ which supports mobile app as cloud service
 - go get github.com/rubinliudongpo/airad （注意配置GOROOT，GOPATH，详情请参考 http://sourabhbajaj.com/mac-setup/Go/README.html ）
 - 在mysql数据库里创建数据库名字叫airad,创建（并授权给）用户（gouser）和密码（gopassword）
 - 导入airad.sql (mysql  -u gouser -p  airad < YOUR_PATH/airad.sql)
+- 请通过 http://localhost:9080/swagger/ 试用API，界面如下
+![](https://github.com/rubinliudongpo/airad/blob/master/pictures/airad_swagger.png）
 
 ## 注意
