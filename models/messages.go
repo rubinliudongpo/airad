@@ -10,11 +10,11 @@ import (
 type Message struct {
 	Id       int64 `json:"id, omitempty" orm:"column(id);pk;unique;auto_increment"`
 	UserId   int64 `json:"user_id" orm:"column(user_id);size(11)"`
-	ToUserId int64 `json:"user_id" orm:"column(user_id);size(11)"`
+	ToUserId int64 `json:"to_user_id" orm:"column(to_user_id);size(11)"`
 	Type     int `json:"type, omitempty" orm:"column(type);size(4)"`
 	SubType  int `json:"sub_type, omitempty" orm:"column(sub_type);size(4)"`
 	Title    string `json:"title, omitempty" orm:"column(title);varbinary"`
-	Url      string `json:"title, omitempty" orm:"column(url);varbinary"`
+	Url      string `json:"url, omitempty" orm:"column(url);varbinary"`
 	Viewed   int `json:"viewed" orm:"column(viewed);size(1)"`// 1: viewed, 0:not-viewed
 	CreatedAt  int64 `json:"created_at, omitempty" orm:"column(created_at);size(11)"`
 }
