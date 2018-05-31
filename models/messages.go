@@ -85,7 +85,7 @@ func ListMessages(query map[string]string, page int, offset int) (msg []interfac
 }
 
 //统计数量
-func CountMessages(query map[string]string) (num int64, err error) {
+func CountMessages(query map[string]string) (num int64) {
 	o := orm.NewOrm()
 	qs := o.QueryTable(TableName("message"))
 	cond := orm.NewCondition()
@@ -99,9 +99,9 @@ func CountMessages(query map[string]string) (num int64, err error) {
 		cond = cond.And("Type", query["type"])
 	}
 	if num, err := qs.SetCond(cond).Count(); err == nil {
-		return num, nil
+		return num
 	}
-	return 0, err
+	return 0
 }
 
 func ChangeMessageStatus(id int64, viewed int) (err error) {
