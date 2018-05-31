@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	orm.RegisterDataBase("default", "mysql", "gouser:gopassword@tcp(127.0.0.1:3306)/airad?charset=utf8mb4")
+	orm.RegisterDataBase("default", "mysql", "gouser:gopass@tcp(127.0.0.1:3306)/airad?charset=utf8mb4")
 	err := orm.RunSyncdb("default", false, true)
 	if err != nil {
 		fmt.Println(err)

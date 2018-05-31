@@ -23,6 +23,7 @@ type User struct {
 	Id int `json:"id" orm:"column(id);pk;unique;auto_increment;int(11)"`
 	Username string `json:"username" orm:"column(username);unique;size(32)"`
 	Password string `json:"password" orm:"column(password);size(128)"`
+	Avatar string `json:"avatar, omitempty" orm:"column(avatar);varbinary"`
 	Salt string `json:"salt" orm:"column(salt);size(128)"`
 	Token string `json:"token" orm:"column(token);size(256)"`
 	Gender int `json:"gender" orm:"column(gender);size(1)"`  // 0:Male, 1: Female, 2: undefined
