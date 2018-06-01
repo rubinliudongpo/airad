@@ -49,7 +49,8 @@ func initRedis() {
 		}
 	}()
 
-	cc, err = cache.NewCache("redis", `{"conn":"`+beego.AppConfig.String("redis_host")+`"}`)
+	cc, err = cache.NewCache("redis", `{"conn":"`+beego.AppConfig.String("redis_host")+`", 
+			"password":"`+beego.AppConfig.String("redis_password")+`"}`)
 
 	if err != nil {
 		//fmt.Println(err)

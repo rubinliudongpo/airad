@@ -9,6 +9,7 @@ import (
 	"github.com/rubinliudongpo/airad/utils"
 	"time"
 	//"github.com/astaxie/beego"
+	"github.com/astaxie/beego"
 )
 
 func (u *User) TableName() string {
@@ -328,6 +329,23 @@ func DeleteUser(id int) (err error) {
 		}
 	}
 	return
+}
+
+
+func GetUsername(id int) string {
+	var err error
+	var username string
+
+	err = utils.GetCache("GetUsername.id."+fmt.Sprintf("%d", id), &username)
+	if err != nil {
+		cacheExpire, _ := beego.AppConfig.Int("cache_expire")
+		var user User
+		o := orm.NewOrm()
+		o.QueryTable(TableName("user")).Filter("Id", id).One(&user, "username")
+		username = user.Username
+		utils.SetCache("GetRealname.id."+fmt.Sprintf("%d", id), username, cacheExpire)
+	}
+	return username
 }
 
 //func HashPassword(password string) (string, error) {
