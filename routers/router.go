@@ -8,9 +8,9 @@
 package routers
 
 import (
-	"github.com/rubinliudongpo/airad/controllers"
 	"github.com/astaxie/beego"
-	//"airad/filters"
+
+	"github.com/rubinliudongpo/airad/controllers"
 )
 
 func init() {

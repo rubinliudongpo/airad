@@ -1,8 +1,10 @@
 package controllers
 
+import "github.com/astaxie/beego"
+
 // ErrorController definition.
 type ErrorController struct {
-	BaseController
+	beego.Controller
 }
 
 

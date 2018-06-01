@@ -6,8 +6,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"os/signal"
-	"github.com/rubinliudongpo/airad/controllers"
-	"github.com/astaxie/beego/context"
+
 )
 
 func InitBootStrap()  {
@@ -26,9 +25,7 @@ func InitBootStrap()  {
 	} else if (beego.BConfig.RunMode == "prod") {
 		beego.SetLevel(beego.LevelInformational)
 	}
-	beego.ErrorController(&controllers.ErrorController{})
-	beego.InsertFilter("/*", beego.BeforeRouter, FilterUser)
-	beego.ErrorController(&controllers.ErrorController{})
+	//beego.InsertFilter("/*", beego.BeforeRouter, FilterUser)
 }
 
 func handleSignals(c chan os.Signal) {
@@ -42,10 +39,10 @@ func handleSignals(c chan os.Signal) {
 	os.Exit(0)
 }
 
-var FilterUser = func(ctx *context.Context) {
-	_, ok := ctx.Input.Session("userLogin").(string)
-	if !ok && ctx.Request.RequestURI != "/" {
-		ctx.Redirect(302, "/")
-	}
-}
+//var FilterUser = func(ctx *context.Context) {
+//	_, ok := ctx.Input.Session("userLogin").(string)
+//	if !ok && ctx.Request.RequestURI != "/" {
+//		ctx.Redirect(302, "/")
+//	}
+//}
 

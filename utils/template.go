@@ -2,11 +2,12 @@ package utils
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/rubinliudongpo/airad/models"
+
+
 )
 
 func InitTemplate() {
-	beego.AddFuncMap("getUsername", models.GetUsername)
+	//beego.AddFuncMap("getUsername", models.GetUsername)
 
 	beego.AddFuncMap("getDate", GetDate)
 	beego.AddFuncMap("getDateMH", GetDateMH)
