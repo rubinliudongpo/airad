@@ -2,7 +2,6 @@ package main
 
 
 import (
-	//_ "github.com/rubinliudongpo/airad/initial"
 	_ "github.com/rubinliudongpo/airad/routers"
 	"github.com/rubinliudongpo/airad/utils"
 

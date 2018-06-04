@@ -32,7 +32,7 @@ which supports mobile app as cloud service
 ```
 - 导入airad.sql
 ```
-    mysql -ugouser -pgopass  airad < database/airad.sql)
+    mysql -uroot -pROOTPASSWORD  airad < database/airad.sql
 ```
 
 ## 查看和调试
@@ -41,3 +41,4 @@ which supports mobile app as cloud service
 ![](https://github.com/rubinliudongpo/airad/blob/master/pictures/airad_swagger.png)
 
 ## 注意
+- SWagger的路由页面待更新
