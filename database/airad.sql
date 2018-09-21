@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `air_ad`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `air_ad` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `device_id` int(11) NOT NULL DEFAULT '0',
   `created_at` bigint(20) NOT NULL DEFAULT '0',
   `nh3` varchar(4) NOT NULL DEFAULT '',
@@ -57,7 +57,7 @@ DROP TABLE IF EXISTS `device`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `device` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0',
   `device_name` varchar(32) NOT NULL DEFAULT '',
   `address` varchar(50) NOT NULL DEFAULT '',
@@ -89,7 +89,7 @@ DROP TABLE IF EXISTS `mqtt`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mqtt` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `device_id` int(11) NOT NULL DEFAULT '0',
   `mqtt_option_id` int(11) NOT NULL DEFAULT '0',
   `qos` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -117,7 +117,7 @@ DROP TABLE IF EXISTS `mqtt_option`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mqtt_option` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `client_id` varchar(255) NOT NULL DEFAULT '',
   `conn_ack_timeout` bigint(20) NOT NULL DEFAULT '0',
   `user_name` varchar(32) NOT NULL DEFAULT '',
@@ -149,7 +149,7 @@ DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(32) NOT NULL DEFAULT '',
   `password` varchar(128) NOT NULL DEFAULT '',
   `salt` varchar(128) NOT NULL DEFAULT '',
